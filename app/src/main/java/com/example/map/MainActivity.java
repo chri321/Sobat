@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +49,9 @@ public class MainActivity extends AppCompatActivity {
     // 导航项
     private LinearLayout navHome, navMap, navAi, navCommunity, navProfile;
     private TextView navHomeText, navMapText, navAiText, navCommunityText, navProfileText;
+    private ImageView navHomeIcon, navMapIcon, navAiIcon, navCommunityIcon, navProfileIcon;
     private TextView[] navTexts;
+    private ImageView[] navIcons;
 
     // 侧滑抽屉
     private DrawerLayout drawerLayout;
@@ -175,7 +178,14 @@ public class MainActivity extends AppCompatActivity {
         navCommunityText = findViewById(R.id.nav_community_text);
         navProfileText = findViewById(R.id.nav_profile_text);
 
+        navHomeIcon = findViewById(R.id.nav_home_icon);
+        navMapIcon = findViewById(R.id.nav_map_icon);
+        navAiIcon = findViewById(R.id.nav_ai_icon);
+        navCommunityIcon = findViewById(R.id.nav_community_icon);
+        navProfileIcon = findViewById(R.id.nav_profile_icon);
+
         navTexts = new TextView[]{navHomeText, navMapText, navAiText, navCommunityText, navProfileText};
+        navIcons = new ImageView[]{navHomeIcon, navMapIcon, navAiIcon, navCommunityIcon, navProfileIcon};
 
         // 分类按钮
         initCategories();
@@ -385,12 +395,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void selectTab(View tab, TextView tabText) {
+        int inactiveColor = Color.parseColor("#999999");
+        int activeColor = Color.parseColor("#FF6A00");
         for (TextView tv : navTexts) {
-            tv.setTextColor(Color.parseColor("#999999"));
+            tv.setTextColor(inactiveColor);
             tv.setTypeface(Typeface.DEFAULT);
         }
-        tabText.setTextColor(Color.parseColor("#FF6A00"));
+        for (ImageView iv : navIcons) {
+            iv.setColorFilter(inactiveColor);
+        }
+        tabText.setTextColor(activeColor);
         tabText.setTypeface(Typeface.DEFAULT_BOLD);
+        ImageView activeIcon = (ImageView) ((LinearLayout) tab).getChildAt(0);
+        if (activeIcon == navAiIcon) {
+            activeIcon.setColorFilter(Color.parseColor("#FFFFFF"));
+        } else {
+            activeIcon.setColorFilter(activeColor);
+        }
     }
 
     // ========== 侧滑抽屉菜单 & 碰撞检测 ==========

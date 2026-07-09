@@ -559,12 +559,12 @@
                     android:clickable="true"
                     android:focusable="true">
 
-                    <TextView
+                    <ImageView
+                        android:id="@+id/nav_home_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:gravity="center"
-                        android:text="🏠"
-                        android:textSize="20sp" />
+                        android:src="@drawable/ic_nav_home"
+                        android:contentDescription="主页" />
                     <TextView
                         android:id="@+id/nav_home_text"
                         android:layout_width="wrap_content"
@@ -586,12 +586,12 @@
                     android:clickable="true"
                     android:focusable="true">
 
-                    <TextView
+                    <ImageView
+                        android:id="@+id/nav_map_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:gravity="center"
-                        android:text="📍"
-                        android:textSize="20sp" />
+                        android:src="@drawable/ic_nav_map"
+                        android:contentDescription="地图" />
                     <TextView
                         android:id="@+id/nav_map_text"
                         android:layout_width="wrap_content"
@@ -614,21 +614,22 @@
                     android:clickable="true"
                     android:focusable="true">
 
-                    <TextView
+                    <ImageView
+                        android:id="@+id/nav_ai_icon"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:layout_marginTop="-16dp"
+                        android:layout_marginTop="0dp"
                         android:background="@drawable/bg_ai_button"
                         android:elevation="4dp"
-                        android:gravity="center"
-                        android:text="🤖"
-                        android:textSize="26sp" />
+                        android:src="@drawable/ic_nav_ai"
+                        android:padding="12dp"
+                        android:contentDescription="问AI" />
                     <TextView
                         android:id="@+id/nav_ai_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="问AI"
+                        android:layout_marginTop="1dp"
+                        android:text="AI"
                         android:textColor="#999999"
                         android:textSize="10sp" />
                 </LinearLayout>
@@ -644,12 +645,12 @@
                     android:clickable="true"
                     android:focusable="true">
 
-                    <TextView
+                    <ImageView
+                        android:id="@+id/nav_community_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:gravity="center"
-                        android:text="👥"
-                        android:textSize="20sp" />
+                        android:src="@drawable/ic_nav_community"
+                        android:contentDescription="社群" />
                     <TextView
                         android:id="@+id/nav_community_text"
                         android:layout_width="wrap_content"
@@ -671,12 +672,12 @@
                     android:clickable="true"
                     android:focusable="true">
 
-                    <TextView
+                    <ImageView
+                        android:id="@+id/nav_profile_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:gravity="center"
-                        android:text="👤"
-                        android:textSize="20sp" />
+                        android:src="@drawable/ic_nav_profile"
+                        android:contentDescription="个人" />
                     <TextView
                         android:id="@+id/nav_profile_text"
                         android:layout_width="wrap_content"
