@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
 
         navAi.setOnClickListener(v -> {
             selectTab(navAi, navAiText);
-            Toast.makeText(this, "问AI — 即将上线", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(MainActivity.this, AiChatActivity.class));
         });
 
         navCommunity.setOnClickListener(v -> {
@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
                 pageMap.setVisibility(View.VISIBLE);
             } else if (id == R.id.drawer_ai) {
                 selectTab(navAi, navAiText);
-                Toast.makeText(this, "问AI — 即将上线", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this, AiChatActivity.class));
             } else if (id == R.id.drawer_community) {
                 selectTab(navCommunity, navCommunityText);
                 Toast.makeText(this, "社群 — 即将上线", Toast.LENGTH_SHORT).show();

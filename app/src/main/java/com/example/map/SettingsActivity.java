@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -61,6 +62,19 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
         updateOverlayStatus(tvOverlay);
+
+        // DeepSeek API Key（独立 SharedPreferences，与 DeepSeekClient 共用）
+        SharedPreferences aiPrefs = getSharedPreferences(DeepSeekClient.PREF_NAME, MODE_PRIVATE);
+        EditText editApiKey = findViewById(R.id.edit_api_key);
+        String savedKey = aiPrefs.getString(DeepSeekClient.PREF_API_KEY, "");
+        editApiKey.setText(savedKey);
+        editApiKey.setSelection(savedKey.length());
+
+        findViewById(R.id.btn_save_key).setOnClickListener(v -> {
+            String key = editApiKey.getText().toString().trim();
+            aiPrefs.edit().putString(DeepSeekClient.PREF_API_KEY, key).apply();
+            Toast.makeText(this, "API Key 已保存", Toast.LENGTH_SHORT).show();
+        });
 
         // 碰撞检测参数说明（只读）
         TextView tvThreshold = findViewById(R.id.tv_threshold);

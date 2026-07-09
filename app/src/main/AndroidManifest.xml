@@ -49,6 +49,12 @@
             </intent-filter>
         </activity>
 
+        <!-- AI对话 -->
+        <activity
+            android:name=".AiChatActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+
         <!-- 设置页面 -->
         <activity
             android:name=".SettingsActivity"
