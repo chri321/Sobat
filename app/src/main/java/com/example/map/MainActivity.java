@@ -1,19 +1,28 @@
 package com.example.map;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
@@ -25,6 +34,8 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.example.map.sensor.CollisionDetectionService;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.Random;
 
@@ -39,12 +50,18 @@ public class MainActivity extends AppCompatActivity {
     private TextView navHomeText, navMapText, navAiText, navCommunityText, navProfileText;
     private TextView[] navTexts;
 
+    // 侧滑抽屉
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private ActionBarDrawerToggle drawerToggle;
+
     // 地图
     private MapView mapView;
     private AMap aMap;
     private boolean firstLocate = true;
 
     private static final int REQ_LOCATION = 100;
+    private static final int REQ_NOTIFICATION = 101;
 
     // 分类常量
     private static final int TYPE_ALL = 0;
@@ -80,9 +97,31 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
         initNavBar();
+        initDrawer();
         selectTab(navMap, navMapText);
 
         requestLocationPermission();
+        requestNotificationPermission();
+
+        // 处理碰撞检测触发的 Intent
+        if (getIntent().getBooleanExtra(CollisionDetectionService.EXTRA_COLLISION_ALERT, false)) {
+            showCollisionDialog();
+        }
+
+        // 如果碰撞检测之前是开启的，自动启动服务
+        SharedPreferences prefs = getSharedPreferences(CollisionDetectionService.PREF_NAME, MODE_PRIVATE);
+        if (prefs.getBoolean(CollisionDetectionService.PREF_COLLISION_ENABLED, true)) {
+            startCollisionServiceIfNeeded();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent.getBooleanExtra(CollisionDetectionService.EXTRA_COLLISION_ALERT, false)) {
+            showCollisionDialog();
+        }
     }
 
     // ==================== 定位权限 ====================
@@ -110,6 +149,10 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "需要定位权限才能显示当前位置", Toast.LENGTH_LONG).show();
                 initMap(null);
+            }
+        } else if (requestCode == REQ_NOTIFICATION) {
+            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "通知权限被拒绝，碰撞预警可能无法正常弹窗", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -223,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
     // ==================== 地图 ====================
 
+    @SuppressWarnings("deprecation")
     private void initMap(Bundle savedInstanceState) {
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
@@ -349,7 +393,107 @@ public class MainActivity extends AppCompatActivity {
         tabText.setTypeface(Typeface.DEFAULT_BOLD);
     }
 
+    // ========== 侧滑抽屉菜单 & 碰撞检测 ==========
+
+    private void initDrawer() {
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+
+        // 汉堡按钮点击打开抽屉
+        TextView btnHamburger = findViewById(R.id.btn_hamburger);
+        if (btnHamburger != null) {
+            btnHamburger.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
+
+        // ActionBarDrawerToggle（抽屉开关动画 / 同步状态）
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.app_name, R.string.app_name);
+        drawerLayout.addDrawerListener(drawerToggle);
+
+        // 抽屉菜单项点击处理
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            drawerLayout.closeDrawer(GravityCompat.START);
+
+            if (id == R.id.drawer_settings) {
+                // 设置：跳转设置页
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            } else if (id == R.id.drawer_home) {
+                selectTab(navHome, navHomeText);
+                pageHome.setVisibility(View.VISIBLE);
+                pageMap.setVisibility(View.GONE);
+            } else if (id == R.id.drawer_map) {
+                selectTab(navMap, navMapText);
+                pageHome.setVisibility(View.GONE);
+                pageMap.setVisibility(View.VISIBLE);
+            } else if (id == R.id.drawer_ai) {
+                selectTab(navAi, navAiText);
+                Toast.makeText(this, "问AI — 即将上线", Toast.LENGTH_SHORT).show();
+            } else if (id == R.id.drawer_community) {
+                selectTab(navCommunity, navCommunityText);
+                Toast.makeText(this, "社群 — 即将上线", Toast.LENGTH_SHORT).show();
+            } else if (id == R.id.drawer_profile) {
+                selectTab(navProfile, navProfileText);
+                Toast.makeText(this, "个人中心 — 即将上线", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        });
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        REQ_NOTIFICATION);
+            }
+        }
+    }
+
+    private void startCollisionServiceIfNeeded() {
+        Intent intent = new Intent(this, CollisionDetectionService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+
+    private void showCollisionDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("检测到碰撞！")
+                .setMessage("系统检测到异常加速度变化，你是否遭遇危险？")
+                .setCancelable(false)
+                .setPositiveButton("拨打 120", (dialog, which) -> {
+                    try {
+                        Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+                        dialIntent.setData(Uri.parse("tel:120"));
+                        startActivity(dialIntent);
+                    } catch (Exception ignored) {}
+                })
+                .setNegativeButton("我没事", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
     // ========== 生命周期 ==========
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (drawerToggle != null) {
+            drawerToggle.syncState();
+        }
+    }
 
     @Override
     protected void onResume() {

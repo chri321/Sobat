@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">Map</string>
+    <string name="app_name">Sobat Jalan</string>
+    <string name="settings">设置</string>
+    <string name="collision_detection">碰撞检测</string>
+    <string name="collision_detection_desc">后台持续监测碰撞风险，检测到异常加速度时自动预警</string>
+    <string name="collision_service_running">碰撞监测运行中</string>
+    <string name="collision_alert_title">检测到碰撞！</string>
+    <string name="collision_alert_message">系统检测到异常加速度变化，你是否遭遇危险？</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
 </resources>
