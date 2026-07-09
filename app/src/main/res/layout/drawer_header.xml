@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    android:background="#FF6A00"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="发现身边的好去处"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:alpha="0.8" />
+
+</LinearLayout>

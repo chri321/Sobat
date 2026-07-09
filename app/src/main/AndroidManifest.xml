@@ -18,20 +18,13 @@
     <!--允许获取wifi状态改变，用于网络定位，若无gps但仍需实现定位小蓝点功能则此权限必选-->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
-    <!--允许写设备缓存，用于问题排查-->
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <!--允许访问网络，必选权限-->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!--允许获取网络状态-->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!--允许获取wifi网络信息-->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
-    <!--允许写设备缓存，用于问题排查-->
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-
+    <!--碰撞检测相关权限-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -47,12 +40,33 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- AI对话 -->
+        <activity
+            android:name=".AiChatActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+
+        <!-- 设置页面 -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="设置" />
+
+        <!-- 碰撞检测前台服务 -->
+        <service
+            android:name=".sensor.CollisionDetectionService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
     </application>
 
 </manifest>
